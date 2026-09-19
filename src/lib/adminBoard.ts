@@ -14,6 +14,8 @@ export const DURATIONS = [
 
 export type Announcement = { id: string; text: string; until: string };
 export type PlanGrant = { email: string; plan: "plus" | "premium" };
+export type PayClaim = { id: string; email: string; plan: "plus" | "premium"; amount: number; note?: string; at: string; status: "pending" | "approved" | "rejected" };
+export type InboxItem = { id: string; message: string; createdAt: string; read: boolean };
 export type LocalAccount = { email: string; password: string; phone?: string; kind: "user" | "brand" };
 export type AdminBoard = {
   announcements: Announcement[];
@@ -21,6 +23,8 @@ export type AdminBoard = {
   bannedPhones: string[];
   bannedBrandIds: string[];
   grants: PlanGrant[];
+  claims: PayClaim[];
+  inbox: InboxItem[];
 };
 
 export const emptyBoard = (): AdminBoard => ({
@@ -29,6 +33,8 @@ export const emptyBoard = (): AdminBoard => ({
   bannedPhones: [],
   bannedBrandIds: [],
   grants: [],
+  claims: [],
+  inbox: [],
 });
 
 export function readLocalBoard(): AdminBoard {
@@ -52,7 +58,7 @@ export function activeAnnouncements(board: AdminBoard) {
 export function isBanned(board: AdminBoard, email?: string, phone?: string) {
   const e = (email || "").toLowerCase();
   const p = (phone || "").replace(/\s/g, "");
-  return board.bannedEmails.some((x) => x.toLowerCase() === e) || (p && board.bannedPhones.includes(p));
+  return board.bannedEmails.some((x) => x.toLowerCase() === e) || (!!p && board.bannedPhones.includes(p));
 }
 
 export async function pullBoard(): Promise<AdminBoard> {
