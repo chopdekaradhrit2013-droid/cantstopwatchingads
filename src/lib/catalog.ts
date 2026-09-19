@@ -18,20 +18,55 @@ export type RemoteAd = {
   destination_url: string;
 };
 
-export async function listPublishedAds() {
-  const res = await fetch(`${URL}/rest/v1/advertisements?status=eq.published&order=created_at.desc`, {
-    headers: { apikey: KEY, Authorization: `Bearer ${KEY}` },
+async function rest(path: string, init?: RequestInit) {
+  const res = await fetch(`${URL}/rest/v1/${path}`, {
+    ...init,
+    headers: {
+      apikey: KEY,
+      Authorization: `Bearer ${KEY}`,
+      "Content-Type": "application/json",
+      Prefer: "return=representation",
+      ...(init?.headers ?? {}),
+    },
     cache: "no-store",
   });
-  if (!res.ok) return [];
-  return (await res.json()) as RemoteAd[];
+  const text = await res.text();
+  if (!res.ok) throw new Error(text);
+  return text ? JSON.parse(text) : [];
+}
+
+export async function listPublishedAds() {
+  try {
+    return (await rest("advertisements?status=eq.published&order=created_at.desc")) as RemoteAd[];
+  } catch {
+    return [];
+  }
 }
 
 export async function listRemoteBrands() {
-  const res = await fetch(`${URL}/rest/v1/brands?order=followers.desc`, {
-    headers: { apikey: KEY, Authorization: `Bearer ${KEY}` },
-    cache: "no-store",
+  try {
+    return await rest("brands?order=followers.desc");
+  } catch {
+    return [];
+  }
+}
+
+export async function listAllAds() {
+  try {
+    return (await rest("advertisements?order=created_at.desc")) as RemoteAd[];
+  } catch {
+    return [];
+  }
+}
+
+export function deleteRemoteAd(id: string) {
+  return rest(`advertisements?id=eq.${encodeURIComponent(id)}`, { method: "DELETE" });
+}
+
+export function upsertBrand(row: Record<string, unknown>) {
+  return rest("brands?on_conflict=id", {
+    method: "POST",
+    headers: { Prefer: "resolution=merge-duplicates,return=representation" },
+    body: JSON.stringify(row),
   });
-  if (!res.ok) return [];
-  return await res.json();
 }
