@@ -9,29 +9,37 @@ import DriftWall from "@/components/DriftWall";
 
 function Empty() {
   return (
-    <div className="rounded-3xl border border-dashed border-neutral-300 bg-white px-6 py-16 text-center">
+    <div className="rounded-3xl border border-white/15 bg-black/50 px-6 py-16 text-center text-white backdrop-blur">
       <p className="font-medium">There are no ads</p>
-      <p className="mt-2 text-sm text-neutral-500">Published advertisements from CREATE will show up here.</p>
+      <p className="mt-2 text-sm text-white/60">Published advertisements from CREATE will show up here.</p>
     </div>
   );
 }
 
-function BrandDrift() {
+function HomeWall() {
   const { brands, ads } = useLive();
   const viewsByBrand = ads.reduce<Record<string, number>>((acc, ad) => {
     acc[ad.brandId] = (acc[ad.brandId] || 0) + (ad.views || 0);
     return acc;
   }, {});
-  const items = [...brands]
+  const logos = [...brands]
     .filter((b) => b.logo && b.logo.trim() && !b.logo.includes("picsum"))
     .sort((a, b) => (viewsByBrand[b.id] || b.followers || 0) - (viewsByBrand[a.id] || a.followers || 0))
-    .slice(0, 12)
     .map((b) => ({ image: b.logo, title: b.name, href: `/brands/${b.slug}` }));
-  if (!items.length) return null;
+  const extras = ads.filter((a) => a.media).map((a) => ({ image: a.media, title: a.title, href: `/ads/${a.id}` }));
+  const items = (logos.length ? logos : extras).slice(0, 16);
+  if (!items.length) return <div className="absolute inset-0 bg-neutral-950" />;
   return (
-    <div className="relative left-1/2 h-[420px] w-screen -translate-x-1/2 overflow-hidden bg-neutral-950">
-      <DriftWall items={items} columns={Math.min(5, items.length)} tileWidth={160} tileHeight={110} overlayColor="#0b0b10" />
-    </div>
+    <DriftWall
+      items={items}
+      columns={5}
+      tileWidth={180}
+      tileHeight={120}
+      overlayColor="#050508"
+      dim={0.7}
+      fade={0.35}
+      speed={28}
+    />
   );
 }
 
@@ -44,8 +52,11 @@ export default function HomePage() {
   const recommended = ads.filter((a) => (user?.interests?.length ? user.interests.includes(a.category) : true)).slice(0, 6).map((a) => a.id);
   const hero = ads.find((a) => a.media);
   return (
-    <div className="space-y-12">
-      <div className="relative left-1/2 w-screen -translate-x-1/2 -mt-8">
+    <div className="relative left-1/2 w-screen -translate-x-1/2 -mt-8 min-h-screen">
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-neutral-950">
+        <HomeWall />
+      </div>
+      <div className="mx-auto max-w-6xl space-y-12 px-4 pb-16 pt-2">
         <ScrollExpand
           useWindowScroll
           title="Ever experienced TIME SQUARE on your screen?"
@@ -53,24 +64,23 @@ export default function HomePage() {
           startWidth={42}
           startHeight={58}
           mediaZoom={1.2}
-          overlayScrim={0.55}
+          overlayScrim={0.35}
           src={hero?.media || ""}
           alt={hero?.title || ""}
-          media={!hero ? <div className="h-full w-full bg-neutral-900" /> : undefined}
+          media={!hero ? <div className="h-full w-full bg-black/20" /> : undefined}
         >
           <h2>Presenting you<br />CantStopWatchingAds</h2>
           <p>Watch the world advertise</p>
         </ScrollExpand>
+        {!loaded ? <p className="text-sm text-white/70">Loading…</p> : ads.length === 0 ? <Empty /> : (
+          <div className="space-y-12 rounded-3xl bg-white/90 p-6 backdrop-blur">
+            <section><div className="mb-4 flex justify-between"><h2 className="text-xl font-semibold">Trending Ads</h2><Link href="/explore?sort=trending" className="text-sm text-neutral-500">See all</Link></div><AdGrid ids={trending} /></section>
+            <section><div className="mb-4 flex justify-between"><h2 className="text-xl font-semibold">Latest Ads</h2><Link href="/explore?sort=latest" className="text-sm text-neutral-500">See all</Link></div><AdGrid ids={latest} /></section>
+            {popularBrands.length > 0 && <section><div className="mb-4 flex justify-between"><h2 className="text-xl font-semibold">Popular Brands</h2><Link href="/brands" className="text-sm text-neutral-500">See all</Link></div><div className="grid gap-3 sm:grid-cols-2">{popularBrands.map((b) => <BrandCard key={b.id} id={b.id} />)}</div></section>}
+            <section><div className="mb-4 flex justify-between"><h2 className="text-xl font-semibold">Recommended For You</h2></div><AdGrid ids={recommended} /></section>
+          </div>
+        )}
       </div>
-      <BrandDrift />
-      {!loaded ? <p className="text-sm text-neutral-500">Loading…</p> : ads.length === 0 ? <Empty /> : (
-        <>
-          <section><div className="mb-4 flex justify-between"><h2 className="text-xl font-semibold">Trending Ads</h2><Link href="/explore?sort=trending" className="text-sm text-neutral-500">See all</Link></div><AdGrid ids={trending} /></section>
-          <section><div className="mb-4 flex justify-between"><h2 className="text-xl font-semibold">Latest Ads</h2><Link href="/explore?sort=latest" className="text-sm text-neutral-500">See all</Link></div><AdGrid ids={latest} /></section>
-          {popularBrands.length > 0 && <section><div className="mb-4 flex justify-between"><h2 className="text-xl font-semibold">Popular Brands</h2><Link href="/brands" className="text-sm text-neutral-500">See all</Link></div><div className="grid gap-3 sm:grid-cols-2">{popularBrands.map((b) => <BrandCard key={b.id} id={b.id} />)}</div></section>}
-          <section><div className="mb-4 flex justify-between"><h2 className="text-xl font-semibold">Recommended For You</h2></div><AdGrid ids={recommended} /></section>
-        </>
-      )}
     </div>
   );
 }
