@@ -30,6 +30,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <AnnouncementBar />
               <Header />
               <main className="mx-auto min-h-[calc(100vh-64px)] max-w-6xl px-4 py-8">{children}</main>
+              <footer className="relative z-10 px-4 py-6 text-center text-xs text-neutral-500">
+                CAN'T STOP WATCHING ADS · CSWA-VERIFY-ADHRIT
+              </footer>
               <GradualBlur target="page" position="bottom" height="5rem" strength={2} divCount={4} curve="bezier" exponential opacity={1} />
             </AuthGateProvider>
           </LiveProvider>
