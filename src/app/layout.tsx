@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/Header";
+import { SiteNav } from "@/components/SiteNav";
 import { StoreProvider } from "@/lib/store";
 import { LiveProvider } from "@/lib/live";
 import GradualBlur from "@/components/GradualBlur";
@@ -20,18 +20,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <StoreProvider>
           <LiveProvider>
             <div style={{ position: "relative", minHeight: "100vh" }}>
-              <Header />
-              <main className="mx-auto min-h-[calc(100vh-64px)] max-w-6xl px-4 py-8 pb-28">{children}</main>
-              <GradualBlur
-                target="page"
-                position="bottom"
-                height="6rem"
-                strength={2}
-                divCount={5}
-                curve="bezier"
-                exponential
-                opacity={1}
-              />
+              <SiteNav />
+              <main className="mx-auto min-h-[calc(100vh-64px)] max-w-6xl px-4 pb-28 pt-28">{children}</main>
+              <GradualBlur target="page" position="bottom" height="6rem" strength={2} divCount={5} curve="bezier" exponential opacity={1} />
             </div>
           </LiveProvider>
         </StoreProvider>
