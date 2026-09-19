@@ -5,12 +5,32 @@ import { useStore } from "@/lib/store";
 import { AdGrid } from "@/components/AdCard";
 import { BrandCard } from "@/components/BrandCard";
 import ScrollExpand from "@/components/ScrollExpand";
+import DriftWall from "@/components/DriftWall";
 
 function Empty() {
   return (
     <div className="rounded-3xl border border-dashed border-neutral-300 bg-white px-6 py-16 text-center">
       <p className="font-medium">There are no ads</p>
       <p className="mt-2 text-sm text-neutral-500">Published advertisements from CREATE will show up here.</p>
+    </div>
+  );
+}
+
+function BrandDrift() {
+  const { brands, ads } = useLive();
+  const viewsByBrand = ads.reduce<Record<string, number>>((acc, ad) => {
+    acc[ad.brandId] = (acc[ad.brandId] || 0) + (ad.views || 0);
+    return acc;
+  }, {});
+  const items = [...brands]
+    .filter((b) => b.logo && b.logo.trim() && !b.logo.includes("picsum"))
+    .sort((a, b) => (viewsByBrand[b.id] || b.followers || 0) - (viewsByBrand[a.id] || a.followers || 0))
+    .slice(0, 12)
+    .map((b) => ({ image: b.logo, title: b.name, href: `/brands/${b.slug}` }));
+  if (!items.length) return null;
+  return (
+    <div className="relative left-1/2 h-[420px] w-screen -translate-x-1/2 overflow-hidden bg-neutral-950">
+      <DriftWall items={items} columns={Math.min(5, items.length)} tileWidth={160} tileHeight={110} overlayColor="#0b0b10" />
     </div>
   );
 }
@@ -42,6 +62,7 @@ export default function HomePage() {
           <p>Watch the world advertise</p>
         </ScrollExpand>
       </div>
+      <BrandDrift />
       {!loaded ? <p className="text-sm text-neutral-500">Loading…</p> : ads.length === 0 ? <Empty /> : (
         <>
           <section><div className="mb-4 flex justify-between"><h2 className="text-xl font-semibold">Trending Ads</h2><Link href="/explore?sort=trending" className="text-sm text-neutral-500">See all</Link></div><AdGrid ids={trending} /></section>
