@@ -1,0 +1,2 @@
+-- Same schema as CREATE. Run once in the SAME Supabase project.
+-- See cantstopwatchingadscreate/supabase/schema.sql
