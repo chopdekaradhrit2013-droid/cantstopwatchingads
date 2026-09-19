@@ -1,8 +1,9 @@
 "use client";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { Category, NotificationItem, User } from "./types";
+import { isAdminEmail, isAdminLogin } from "./admin";
 
-const KEY = "cswa-store-v3";
+const KEY = "cswa-store-v4";
 
 type StoreState = {
   user: User | null;
@@ -22,7 +23,8 @@ const defaultState: StoreState = {
 
 type Store = StoreState & {
   ready: boolean;
-  signup: (name: string, email: string, password: string, interests: Category[]) => void;
+  isAdmin: boolean;
+  signup: (name: string, email: string, password: string, interests: Category[]) => boolean;
   login: (email: string, password: string) => boolean;
   logout: () => void;
   updateInterests: (interests: Category[]) => void;
@@ -36,6 +38,17 @@ type Store = StoreState & {
 
 const Ctx = createContext<Store | null>(null);
 
+function adminUser(): User {
+  return {
+    id: "admin-cswa",
+    name: "Admin",
+    email: "chopdekaradhrit2013@gmail.com",
+    avatar: "https://ui-avatars.com/api/?name=Admin&background=111111&color=fff",
+    interests: [],
+    admin: true,
+  };
+}
+
 export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<StoreState>(defaultState);
   const [ready, setReady] = useState(false);
@@ -43,7 +56,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY);
-      if (raw) setState({ ...defaultState, ...JSON.parse(raw), notifications: [] });
+      if (raw) setState({ ...defaultState, ...JSON.parse(raw) });
     } catch {}
     setReady(true);
   }, []);
@@ -53,7 +66,12 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(KEY, JSON.stringify(state));
   }, [state, ready]);
 
-  const signup = useCallback((name: string, email: string, _password: string, interests: Category[]) => {
+  const signup = useCallback((name: string, email: string, password: string, interests: Category[]) => {
+    if (isAdminEmail(email)) {
+      if (!isAdminLogin(email, password)) return false;
+      setState((s) => ({ ...s, user: adminUser() }));
+      return true;
+    }
     const user: User = {
       id: crypto.randomUUID(),
       name,
@@ -62,29 +80,32 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
       interests,
     };
     setState((s) => ({ ...s, user }));
+    return true;
   }, []);
 
-  const login = useCallback((email: string, _password: string) => {
+  const login = useCallback((email: string, password: string) => {
+    if (isAdminEmail(email)) {
+      if (!isAdminLogin(email, password)) return false;
+      setState((s) => ({ ...s, user: adminUser() }));
+      return true;
+    }
     let ok = false;
     setState((s) => {
       if (s.user && s.user.email.toLowerCase() === email.toLowerCase()) {
         ok = true;
         return s;
       }
-      if (!s.user) {
-        ok = true;
-        return {
-          ...s,
-          user: {
-            id: crypto.randomUUID(),
-            name: email.split("@")[0],
-            email,
-            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(email)}&background=111111&color=fff`,
-            interests: [],
-          },
-        };
-      }
-      return s;
+      ok = true;
+      return {
+        ...s,
+        user: {
+          id: crypto.randomUUID(),
+          name: email.split("@")[0],
+          email,
+          avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(email)}&background=111111&color=fff`,
+          interests: [],
+        },
+      };
     });
     return ok;
   }, []);
@@ -106,9 +127,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
+  const isAdmin = !!state.user?.admin || isAdminEmail(state.user?.email);
   const value = useMemo<Store>(() => ({
     ...state,
     ready,
+    isAdmin,
     signup,
     login,
     logout,
@@ -119,7 +142,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     isLiked: (id) => state.liked.includes(id),
     isSaved: (id) => state.saved.includes(id),
     isFollowed: (id) => state.followed.includes(id),
-  }), [state, ready, signup, login, logout, updateInterests, toggleLike, toggleSave, toggleFollow]);
+  }), [state, ready, isAdmin, signup, login, logout, updateInterests, toggleLike, toggleSave, toggleFollow]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

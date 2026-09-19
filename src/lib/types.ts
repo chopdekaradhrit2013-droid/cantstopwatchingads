@@ -11,5 +11,5 @@ export type Advertisement = {
   category: Category; thumbnail: string; media: string; likes: number; views: number;
   createdAt: string; cta?: string; destinationUrl?: string;
 };
-export type User = { id: string; name: string; email: string; avatar: string; interests: Category[] };
+export type User = { id: string; name: string; email: string; avatar: string; interests: Category[]; admin?: boolean };
 export type NotificationItem = { id: string; brandId: string; message: string; createdAt: string; read: boolean };
