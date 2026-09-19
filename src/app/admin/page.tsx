@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { deleteRemoteAd, listAllAds, listRemoteBrands, upsertBrand } from "@/lib/catalog";
+import { isAdminLogin } from "@/lib/admin";
 import {
   BOARD_ID,
   DURATIONS,
@@ -11,8 +12,13 @@ import {
   pushBoard,
   type AdminBoard,
 } from "@/lib/adminBoard";
+import { useStore } from "@/lib/store";
 
 export default function AdminPage() {
+  const { user, isAdmin, login } = useStore();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [board, setBoard] = useState<AdminBoard>(emptyBoard());
   const [ads, setAds] = useState<{ id: string; title: string; brand_name: string; brand_id: string }[]>([]);
   const [brands, setBrands] = useState<{ id: string; name: string; handle: string }[]>([]);
@@ -24,19 +30,40 @@ export default function AdminPage() {
   const [grantPlan, setGrantPlan] = useState<"plus" | "premium">("plus");
 
   useEffect(() => {
+    if (!isAdmin) return;
     pullBoard().then(setBoard).catch(() => {});
     listAllAds().then(setAds).catch(() => {});
     listRemoteBrands().then((rows: { id: string; name: string; handle: string }[]) => setBrands(rows.filter((b) => b.id !== BOARD_ID))).catch(() => {});
-  }, []);
+  }, [isAdmin]);
 
   async function save(next: AdminBoard) {
     setBoard(next);
     await pushBoard(next);
   }
 
+  if (!user || !isAdmin) {
+    return (
+      <div className="mx-auto max-w-md rounded-3xl border bg-white p-6">
+        <h1 className="text-2xl font-semibold">Admin sign in</h1>
+        <p className="mt-1 text-sm text-neutral-500">Only the admin account can open this console.</p>
+        <form className="mt-5 space-y-3" onSubmit={(e) => {
+          e.preventDefault();
+          if (!isAdminLogin(email.trim(), password)) { setError("Wrong admin email or password."); return; }
+          login(email.trim(), password);
+        }}>
+          <label className="block text-sm">Email<input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" /></label>
+          <label className="block text-sm">Password<input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" /></label>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+          <button className="w-full rounded-full bg-neutral-900 py-2.5 text-sm text-white">Sign in</button>
+        </form>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-semibold">Admin console</h1>
+      <p className="text-sm text-neutral-500">Signed in as {user.email}</p>
 
       <section className="rounded-2xl border bg-white p-5 space-y-3">
         <h2 className="font-semibold">Announcement</h2>
