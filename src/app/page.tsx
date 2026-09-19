@@ -4,6 +4,7 @@ import { useLive } from "@/lib/live";
 import { useStore } from "@/lib/store";
 import { AdGrid } from "@/components/AdCard";
 import { BrandCard } from "@/components/BrandCard";
+import { BrandDriftWall } from "@/components/BrandDriftWall";
 function Empty() {
   return (
     <div className="rounded-3xl border border-dashed border-neutral-300 bg-white px-6 py-16 text-center">
@@ -21,6 +22,7 @@ export default function HomePage() {
   const recommended = ads.filter((a) => user?.interests?.length ? user.interests.includes(a.category) : true).slice(0, 6).map((a) => a.id);
   return (
     <div className="space-y-12">
+      <BrandDriftWall />
       <section className="rounded-3xl border border-neutral-200 bg-white px-6 py-12 text-center sm:px-12">
         <p className="text-xs uppercase tracking-[0.2em] text-neutral-500">Viewer</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-5xl">CAN’T STOP WATCHING ADS</h1>
