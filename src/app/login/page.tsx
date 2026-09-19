@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { isBanned, pullBoard, rememberAccount } from "@/lib/adminBoard";
 import { useStore } from "@/lib/store";
 export default function LoginPage() {
   const { login, user } = useStore();
@@ -13,7 +14,14 @@ export default function LoginPage() {
   return (
     <div className="mx-auto max-w-md rounded-3xl border border-neutral-200 bg-white p-6">
       <h1 className="text-2xl font-semibold">Log in</h1>
-      <form onSubmit={(e) => { e.preventDefault(); if (!login(email.trim(), password)) setError("No matching account."); else router.push("/"); }} className="mt-6 space-y-4">
+      <form onSubmit={async (e) => {
+        e.preventDefault();
+        const board = await pullBoard();
+        if (isBanned(board, email)) { setError("This account is banned."); return; }
+        if (!login(email.trim(), password)) { setError("Wrong details."); return; }
+        rememberAccount({ email: email.trim(), password, kind: "user" });
+        router.push("/");
+      }} className="mt-6 space-y-4">
         <label className="block text-sm">Email<input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" /></label>
         <label className="block text-sm">Password<input required type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1 w-full rounded-xl border px-3 py-2" /></label>
         {error && <p className="text-sm text-red-600">{error}</p>}
