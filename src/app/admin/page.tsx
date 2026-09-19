@@ -1,8 +1,8 @@
 "use client";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import { deleteRemoteAd, listAllAds, listRemoteBrands, upsertBrand } from "@/lib/catalog";
 import {
+  BOARD_ID,
   DURATIONS,
   activeAnnouncements,
   emptyBoard,
@@ -11,11 +11,8 @@ import {
   pushBoard,
   type AdminBoard,
 } from "@/lib/adminBoard";
-import { BOARD_ID } from "@/lib/adminBoard";
-import { useStore } from "@/lib/store";
 
 export default function AdminPage() {
-  const { user, isAdmin } = useStore();
   const [board, setBoard] = useState<AdminBoard>(emptyBoard());
   const [ads, setAds] = useState<{ id: string; title: string; brand_name: string; brand_id: string }[]>([]);
   const [brands, setBrands] = useState<{ id: string; name: string; handle: string }[]>([]);
@@ -35,10 +32,6 @@ export default function AdminPage() {
   async function save(next: AdminBoard) {
     setBoard(next);
     await pushBoard(next);
-  }
-
-  if (!user || !isAdmin) {
-    return <div className="rounded-2xl border bg-white p-6 text-sm">Admin only. <Link href="/login" className="underline">Log in</Link></div>;
   }
 
   return (
@@ -133,13 +126,10 @@ export default function AdminPage() {
 
       <section className="rounded-2xl border bg-white p-5 space-y-3">
         <h2 className="font-semibold">Accounts on this browser</h2>
-        <p className="text-xs text-neutral-500">Passwords are only stored on devices where someone logged in. There is no global password database.</p>
         <ul className="text-sm space-y-1">
           {listLocalAccounts().length === 0 && <li className="text-neutral-500">No local accounts recorded yet.</li>}
           {listLocalAccounts().map((a) => (
-            <li key={a.email} className="rounded-xl border px-3 py-2">
-              {a.email} · {a.kind} · {a.phone || "no phone"} · password: {a.password || "(not saved)"}
-            </li>
+            <li key={a.email} className="rounded-xl border px-3 py-2">{a.email} · {a.kind} · password: {a.password || "(not saved)"}</li>
           ))}
         </ul>
       </section>
