@@ -16,6 +16,7 @@ export function LiveProvider({ children }: { children: React.ReactNode }) {
         setRemoteAds(rows.map((r) => ({
           id: r.id,
           brandId: r.brand_id,
+          brandName: r.brand_name,
           title: r.title,
           description: r.description,
           category: r.category as Category,
@@ -24,15 +25,17 @@ export function LiveProvider({ children }: { children: React.ReactNode }) {
           likes: r.likes,
           views: r.views,
           createdAt: r.created_at,
+          cta: r.cta,
+          destinationUrl: r.destination_url,
         })));
         setRemoteBrands(brandRows.map((b: { id: string; name: string; handle: string; logo: string; description: string; website: string; followers: number }) => ({
           id: b.id,
           name: b.name,
           slug: b.handle,
-          logo: b.logo,
-          description: b.description,
-          website: b.website,
-          followers: b.followers,
+          logo: b.logo || "",
+          description: b.description || "",
+          website: b.website || "",
+          followers: b.followers || 0,
         })));
       })
       .catch(() => {})

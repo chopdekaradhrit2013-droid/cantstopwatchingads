@@ -14,6 +14,8 @@ export type RemoteAd = {
   views: number;
   likes: number;
   saves: number;
+  cta: string;
+  destination_url: string;
 };
 
 export async function listPublishedAds() {

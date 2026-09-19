@@ -9,6 +9,7 @@ export function AdCard({ id }: { id: string }) {
   const { isLiked, isSaved, toggleLike, toggleSave } = useStore();
   if (!ad) return null;
   const brand = brands.find((b) => b.id === ad.brandId);
+  const brandName = ad.brandName || brand?.name || "Brand";
   return (
     <article className="group overflow-hidden rounded-2xl border border-neutral-200 bg-white transition hover:shadow-md">
       <Link href={`/ads/${ad.id}`} className="block overflow-hidden">
@@ -18,7 +19,7 @@ export function AdCard({ id }: { id: string }) {
       <div className="p-3">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <Link href={`/brands/${brand?.slug ?? ad.brandId}`} className="text-xs text-neutral-500">{brand?.name}</Link>
+            <Link href={`/brands/${brand?.slug ?? ad.brandId}`} className="text-xs text-neutral-500">{brandName}</Link>
             <Link href={`/ads/${ad.id}`} className="mt-0.5 block truncate font-medium">{ad.title}</Link>
             <p className="mt-1 text-xs text-neutral-500">{ad.category}</p>
           </div>
@@ -33,6 +34,6 @@ export function AdCard({ id }: { id: string }) {
   );
 }
 export function AdGrid({ ids }: { ids: string[] }) {
-  if (!ids.length) return <p className="py-12 text-center text-sm text-neutral-500">No advertisements found.</p>;
+  if (!ids.length) return <p className="py-12 text-center text-sm text-neutral-500">There are no ads</p>;
   return <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">{ids.map((id) => <AdCard key={id} id={id} />)}</div>;
 }

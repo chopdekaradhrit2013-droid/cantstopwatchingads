@@ -1,26 +1,9 @@
 export type Category =
-  | "Fashion"
-  | "Sports"
-  | "Food"
-  | "Technology"
-  | "Beauty"
-  | "Gaming"
-  | "Automotive"
-  | "Travel"
-  | "Entertainment"
-  | "Other";
+  | "Fashion" | "Sports" | "Food" | "Technology" | "Beauty"
+  | "Gaming" | "Automotive" | "Travel" | "Entertainment" | "Other";
 
 export const CATEGORIES: Category[] = [
-  "Fashion",
-  "Sports",
-  "Food",
-  "Technology",
-  "Beauty",
-  "Gaming",
-  "Automotive",
-  "Travel",
-  "Entertainment",
-  "Other",
+  "Fashion", "Sports", "Food", "Technology", "Beauty", "Gaming", "Automotive", "Travel", "Entertainment", "Other",
 ];
 
 export type Brand = {
@@ -36,6 +19,7 @@ export type Brand = {
 export type Advertisement = {
   id: string;
   brandId: string;
+  brandName?: string;
   title: string;
   description: string;
   category: Category;
@@ -44,6 +28,8 @@ export type Advertisement = {
   likes: number;
   views: number;
   createdAt: string;
+  cta?: string;
+  destinationUrl?: string;
 };
 
 export type User = {

@@ -5,13 +5,23 @@ import { formatCount, formatDate } from "@/lib/data";
 import { useLive } from "@/lib/live";
 import { useStore } from "@/lib/store";
 import { AdGrid } from "@/components/AdCard";
+
+function href(url?: string) {
+  if (!url) return "";
+  if (/^https?:\/\//i.test(url)) return url;
+  return `https://${url}`;
+}
+
 export default function AdPage() {
   const { id } = useParams<{ id: string }>();
-  const { ads, brands } = useLive();
+  const { ads, brands, loaded } = useLive();
   const ad = ads.find((a) => a.id === id);
   const { isLiked, isSaved, isFollowed, toggleLike, toggleSave, toggleFollow } = useStore();
-  if (!ad) return <p>Advertisement not found.</p>;
+  if (!loaded) return <p>Loading…</p>;
+  if (!ad) return <p>There are no ads at this link.</p>;
   const brand = brands.find((b) => b.id === ad.brandId);
+  const brandName = ad.brandName || brand?.name || "Brand";
+  const visit = href(ad.destinationUrl || brand?.website);
   const more = ads.filter((a) => a.brandId === ad.brandId && a.id !== ad.id).map((a) => a.id);
   async function share() {
     const url = window.location.href;
@@ -26,7 +36,8 @@ export default function AdPage() {
         <div className="p-6">
           <p className="text-xs uppercase tracking-wide text-neutral-500">{ad.category} · {formatDate(ad.createdAt)}</p>
           <h1 className="mt-2 text-3xl font-semibold">{ad.title}</h1>
-          {brand && <Link href={`/brands/${brand.slug}`} className="mt-2 inline-block text-sm">{brand.name}</Link>}
+          {brand && <Link href={`/brands/${brand.slug}`} className="mt-2 inline-block text-sm">{brandName}</Link>}
+          {!brand && <p className="mt-2 text-sm">{brandName}</p>}
           <p className="mt-4 max-w-2xl text-neutral-600">{ad.description}</p>
           <p className="mt-3 text-xs text-neutral-400">{formatCount(ad.likes)} likes · {formatCount(ad.views)} views</p>
           <div className="mt-6 flex flex-wrap gap-2">
@@ -34,17 +45,19 @@ export default function AdPage() {
             <button type="button" onClick={() => toggleSave(ad.id)} className={`rounded-full px-4 py-2 text-sm ${isSaved(ad.id) ? "bg-neutral-900 text-white" : "border border-neutral-200"}`}>{isSaved(ad.id) ? "Saved" : "Save"}</button>
             <button type="button" onClick={share} className="rounded-full border border-neutral-200 px-4 py-2 text-sm">Share</button>
             {brand && (
-              <>
-                <button type="button" onClick={() => toggleFollow(brand.id)} className={`rounded-full px-4 py-2 text-sm ${isFollowed(brand.id) ? "border border-neutral-200" : "bg-neutral-900 text-white"}`}>{isFollowed(brand.id) ? "Following" : "Follow brand"}</button>
-                <a href={brand.website} target="_blank" rel="noreferrer" className="rounded-full border border-neutral-200 px-4 py-2 text-sm">Visit brand website</a>
-              </>
+              <button type="button" onClick={() => toggleFollow(brand.id)} className={`rounded-full px-4 py-2 text-sm ${isFollowed(brand.id) ? "border border-neutral-200" : "bg-neutral-900 text-white"}`}>{isFollowed(brand.id) ? "Following" : "Follow brand"}</button>
+            )}
+            {visit && (
+              <a href={visit} target="_blank" rel="noreferrer" className="rounded-full bg-neutral-900 px-4 py-2 text-sm text-white">
+                {ad.cta || "Visit"}
+              </a>
             )}
           </div>
         </div>
       </div>
       {more.length > 0 && (
         <section>
-          <h2 className="mb-4 text-xl font-semibold">More from {brand?.name}</h2>
+          <h2 className="mb-4 text-xl font-semibold">More from {brandName}</h2>
           <AdGrid ids={more} />
         </section>
       )}
