@@ -6,9 +6,9 @@ export default function BrandsPage() {
   return (
     <div>
       <h1 className="text-2xl font-semibold">Brands</h1>
-      <p className="mt-1 text-sm text-neutral-500">Follow brands to hear when they publish new ads.</p>
+      <p className="mt-1 text-sm text-neutral-500">Only live brands. Banned accounts stay hidden.</p>
       {!loaded ? <p className="mt-8 text-sm text-neutral-500">Loading…</p> : brands.length === 0 ? (
-        <p className="mt-8 text-sm text-neutral-500">No brands have published yet. Upload an ad on CREATE first.</p>
+        <p className="mt-8 rounded-3xl border border-dashed p-10 text-center text-sm text-neutral-500">No brands yet.</p>
       ) : (
         <div className="mt-6 grid gap-3 sm:grid-cols-2">{brands.map((b) => <BrandCard key={b.id} id={b.id} />)}</div>
       )}

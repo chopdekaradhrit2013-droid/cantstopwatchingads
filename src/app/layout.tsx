@@ -6,11 +6,19 @@ import { StoreProvider } from "@/lib/store";
 import { LiveProvider } from "@/lib/live";
 import { AuthGateProvider } from "@/components/AuthGate";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
+import GradualBlur from "@/components/GradualBlur";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "CAN'T STOP WATCHING ADS",
-  description: "Discover the ads you actually want to watch.",
+  description: "Watch the world advertise.",
+  metadataBase: new URL("https://cantstopwatchingads.vercel.app"),
+  openGraph: {
+    title: "CAN'T STOP WATCHING ADS",
+    description: "Watch the world advertise.",
+    siteName: "CAN'T STOP WATCHING ADS",
+  },
+  icons: { icon: "/favicon.svg" },
 };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -22,6 +30,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <AnnouncementBar />
               <Header />
               <main className="mx-auto min-h-[calc(100vh-64px)] max-w-6xl px-4 py-8">{children}</main>
+              <GradualBlur target="page" position="bottom" height="5rem" strength={2} divCount={4} curve="bezier" exponential opacity={1} />
             </AuthGateProvider>
           </LiveProvider>
         </StoreProvider>

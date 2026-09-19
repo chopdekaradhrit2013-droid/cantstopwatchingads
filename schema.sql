@@ -1,0 +1,7 @@
+-- Optional extras if you want a dedicated admin board table later.
+-- Current MVP stores announcements/bans/grants in brands.id = 'cswa-admin-board'.description
+-- create table if not exists announcements (
+--   id text primary key,
+--   text text not null,
+--   until timestamptz not null
+-- );

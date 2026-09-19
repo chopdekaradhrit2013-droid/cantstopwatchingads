@@ -11,14 +11,14 @@ export function Header() {
     { label: "Saved", href: "/saved", rotation: 8, hoverStyles: { bgColor: "#111", textColor: "#fff" } },
     { label: "Alerts", href: "/notifications", rotation: -8, hoverStyles: { bgColor: "#111", textColor: "#fff" } },
     { label: user ? "Profile" : "Log in", href: user ? "/profile" : "/login", rotation: 8, hoverStyles: { bgColor: "#111", textColor: "#fff" } },
-    { label: "Admin", href: "/admin", rotation: -8, hoverStyles: { bgColor: "#111", textColor: "#fff" } },
   ];
+  if (isAdmin) items.push({ label: "Admin", href: "/admin", rotation: -8, hoverStyles: { bgColor: "#111", textColor: "#fff" } });
   return (
     <>
       <div className="h-20" />
       <BubbleMenu
         logo={<span style={{ fontWeight: 700, fontSize: 13, letterSpacing: "0.06em" }}>CSWA</span>}
-        items={isAdmin ? items : items.filter((i) => i.href !== "/admin" || true)}
+        items={items}
         menuBg="#f6f3ec"
         menuContentColor="#111"
         useFixedPosition
