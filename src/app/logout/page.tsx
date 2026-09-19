@@ -1,13 +1,18 @@
 "use client";
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useStore } from "@/lib/store";
 export default function LogoutPage() {
-  const { logout } = useStore();
-  const router = useRouter();
   useEffect(() => {
-    logout();
-    router.replace("/login");
-  }, [logout, router]);
+    try {
+      const KEY = "cswa-store-v4";
+      const raw = localStorage.getItem(KEY);
+      if (raw) {
+        const p = JSON.parse(raw);
+        localStorage.setItem(KEY, JSON.stringify({ ...p, user: null }));
+      } else {
+        localStorage.setItem(KEY, JSON.stringify({ user: null, liked: [], saved: [], followed: [], notifications: [] }));
+      }
+    } catch {}
+    window.location.replace("/login");
+  }, []);
   return <p className="text-sm">Signing out…</p>;
 }
