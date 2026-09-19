@@ -19,7 +19,7 @@ export function AdCard({ id }: { id: string }) {
       <div className="p-3">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <Link href={`/brands/${brand?.slug ?? ad.brandId}`} className="text-xs text-neutral-500">{brandName}</Link>
+            <Link href={`/brands/${brand?.slug ?? ad.brandId}`} className="text-xs text-neutral-500">{brandName}{brand?.verified ? " ✓" : ""}</Link>
             <Link href={`/ads/${ad.id}`} className="mt-0.5 block truncate font-medium">{ad.title}</Link>
             <p className="mt-1 text-xs text-neutral-500">{ad.category}</p>
           </div>

@@ -1,10 +1,19 @@
 "use client";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useState } from "react";
 import { formatCount, formatDate } from "@/lib/data";
 import { useLive } from "@/lib/live";
 import { useStore } from "@/lib/store";
 import { AdGrid } from "@/components/AdCard";
+
+const REASONS = [
+  "This brand is impersonating another business",
+  "Unauthorized advertisement",
+  "Misleading advertisement",
+  "Copyright/trademark concern",
+  "Other",
+];
 
 function href(url?: string) {
   if (!url) return "";
@@ -17,6 +26,8 @@ export default function AdPage() {
   const { ads, brands, loaded } = useLive();
   const ad = ads.find((a) => a.id === id);
   const { isLiked, isSaved, isFollowed, toggleLike, toggleSave, toggleFollow } = useStore();
+  const [reason, setReason] = useState(REASONS[0]);
+  const [reported, setReported] = useState(false);
   if (!loaded) return <p>Loading…</p>;
   if (!ad) return <p>There are no ads at this link.</p>;
   const brand = brands.find((b) => b.id === ad.brandId);
@@ -28,6 +39,13 @@ export default function AdPage() {
     if (navigator.share) await navigator.share({ title: ad.title, url });
     else { await navigator.clipboard.writeText(url); alert("Link copied."); }
   }
+  function report() {
+    const key = "cswa-reports";
+    const prev = JSON.parse(localStorage.getItem(key) || "[]");
+    prev.unshift({ id: `104${prev.length + 2}`, reason, advertisement: ad.title, adId: ad.id, status: "under_review" });
+    localStorage.setItem(key, JSON.stringify(prev));
+    setReported(true);
+  }
   return (
     <div className="space-y-10">
       <div className="overflow-hidden rounded-3xl border border-neutral-200 bg-white">
@@ -36,8 +54,7 @@ export default function AdPage() {
         <div className="p-6">
           <p className="text-xs uppercase tracking-wide text-neutral-500">{ad.category} · {formatDate(ad.createdAt)}</p>
           <h1 className="mt-2 text-3xl font-semibold">{ad.title}</h1>
-          {brand && <Link href={`/brands/${brand.slug}`} className="mt-2 inline-block text-sm">{brandName}</Link>}
-          {!brand && <p className="mt-2 text-sm">{brandName}</p>}
+          <p className="mt-2 text-sm">{brandName}{brand?.verified ? " · ✓ Verified Business" : ""}</p>
           <p className="mt-4 max-w-2xl text-neutral-600">{ad.description}</p>
           <p className="mt-3 text-xs text-neutral-400">{formatCount(ad.likes)} likes · {formatCount(ad.views)} views</p>
           <div className="mt-6 flex flex-wrap gap-2">
@@ -48,9 +65,19 @@ export default function AdPage() {
               <button type="button" onClick={() => toggleFollow(brand.id)} className={`rounded-full px-4 py-2 text-sm ${isFollowed(brand.id) ? "border border-neutral-200" : "bg-neutral-900 text-white"}`}>{isFollowed(brand.id) ? "Following" : "Follow brand"}</button>
             )}
             {visit && (
-              <a href={visit} target="_blank" rel="noreferrer" className="rounded-full bg-neutral-900 px-4 py-2 text-sm text-white">
-                {ad.cta || "Visit"}
-              </a>
+              <a href={visit} target="_blank" rel="noreferrer" className="rounded-full bg-neutral-900 px-4 py-2 text-sm text-white">{ad.cta || "Visit"}</a>
+            )}
+          </div>
+          <div className="mt-8 rounded-2xl border border-neutral-200 p-4">
+            <p className="text-sm font-medium">Report Advertisement</p>
+            <p className="mt-1 text-xs text-neutral-500">Demo report — stored locally until admin review is connected.</p>
+            {reported ? <p className="mt-3 text-sm">Report submitted. Status: Under Review.</p> : (
+              <>
+                <select value={reason} onChange={(e) => setReason(e.target.value)} className="mt-3 w-full rounded-xl border px-3 py-2 text-sm">
+                  {REASONS.map((r) => <option key={r}>{r}</option>)}
+                </select>
+                <button type="button" onClick={report} className="mt-3 rounded-full border px-4 py-2 text-sm">Submit report</button>
+              </>
             )}
           </div>
         </div>

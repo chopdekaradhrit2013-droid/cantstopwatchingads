@@ -14,28 +14,13 @@ export function LiveProvider({ children }: { children: React.ReactNode }) {
     Promise.all([listPublishedAds(), listRemoteBrands()])
       .then(([rows, brandRows]) => {
         setRemoteAds(rows.map((r) => ({
-          id: r.id,
-          brandId: r.brand_id,
-          brandName: r.brand_name,
-          title: r.title,
-          description: r.description,
-          category: r.category as Category,
-          thumbnail: r.media,
-          media: r.media,
-          likes: r.likes,
-          views: r.views,
-          createdAt: r.created_at,
-          cta: r.cta,
-          destinationUrl: r.destination_url,
+          id: r.id, brandId: r.brand_id, brandName: r.brand_name, title: r.title, description: r.description,
+          category: r.category as Category, thumbnail: r.media, media: r.media, likes: r.likes, views: r.views,
+          createdAt: r.created_at, cta: r.cta, destinationUrl: r.destination_url,
         })));
-        setRemoteBrands(brandRows.map((b: { id: string; name: string; handle: string; logo: string; description: string; website: string; followers: number }) => ({
-          id: b.id,
-          name: b.name,
-          slug: b.handle,
-          logo: b.logo || "",
-          description: b.description || "",
-          website: b.website || "",
-          followers: b.followers || 0,
+        setRemoteBrands(brandRows.map((b: { id: string; name: string; handle: string; logo: string; description: string; website: string; followers: number; twitter?: string }) => ({
+          id: b.id, name: b.name, slug: b.handle, logo: b.logo || "", description: b.description || "",
+          website: b.website || "", followers: b.followers || 0, verified: b.twitter === "cswa-verified",
         })));
       })
       .catch(() => {})
@@ -44,7 +29,4 @@ export function LiveProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<Live>(() => ({ ads: remoteAds, brands: remoteBrands, loaded }), [remoteAds, remoteBrands, loaded]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
-
-export function useLive() {
-  return useContext(Ctx);
-}
+export function useLive() { return useContext(Ctx); }
