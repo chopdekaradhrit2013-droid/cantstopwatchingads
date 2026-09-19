@@ -6,6 +6,7 @@ import { useLive } from "@/lib/live";
 export function FluidGlassSection() {
   const { ads, loaded } = useLive();
   const stageRef = useRef<HTMLDivElement>(null);
+  const viewRef = useRef<HTMLDivElement>(null);
   const lensRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -29,27 +30,32 @@ export function FluidGlassSection() {
   }, [items.length]);
 
   useEffect(() => {
-    const stage = stageRef.current;
+    const view = viewRef.current;
     const lens = lensRef.current;
-    if (!stage || !lens) return;
+    if (!view || !lens) return;
     const move = (e: PointerEvent) => {
-      const r = stage.getBoundingClientRect();
-      lens.style.left = `${e.clientX - r.left}px`;
-      lens.style.top = `${e.clientY - r.top}px`;
+      const r = view.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      lens.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
     };
-    stage.addEventListener("pointermove", move);
-    return () => stage.removeEventListener("pointermove", move);
-  }, []);
+    view.addEventListener("pointermove", move);
+    view.addEventListener("pointerdown", move);
+    return () => {
+      view.removeEventListener("pointermove", move);
+      view.removeEventListener("pointerdown", move);
+    };
+  }, [items.length]);
 
   if (!items.length) return null;
 
   return (
     <section ref={stageRef} className="relative left-1/2 h-[200vh] w-screen -translate-x-1/2 bg-[#0b0b10]">
-      <div className="sticky top-0 h-screen overflow-hidden">
+      <div ref={viewRef} className="sticky top-0 h-screen overflow-hidden">
         <div
           ref={listRef}
           className="absolute inset-x-0 top-0 columns-2 gap-4 px-6 pt-[18vh] sm:columns-3"
-          style={{ transform: "translate3d(0, 55vh, 0)", transition: "transform 0.05s linear" }}
+          style={{ transform: "translate3d(0, 55vh, 0)" }}
         >
           {items.map((item) => (
             <Link key={item.id} href={`/ads/${item.id}`} className="mb-4 block break-inside-avoid overflow-hidden rounded-2xl">
@@ -60,7 +66,8 @@ export function FluidGlassSection() {
         </div>
         <div
           ref={lensRef}
-          className="pointer-events-none absolute left-1/2 top-1/2 h-40 w-40 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/30 bg-white/10 shadow-[0_0_40px_rgba(255,255,255,0.12)] backdrop-blur-xl"
+          className="pointer-events-none absolute left-0 top-0 z-20 h-44 w-44 rounded-full border border-white/35 bg-white/15 shadow-[0_8px_40px_rgba(255,255,255,0.16)] backdrop-blur-2xl"
+          style={{ transform: "translate3d(50vw, 40vh, 0) translate(-50%, -50%)" }}
         />
       </div>
     </section>
