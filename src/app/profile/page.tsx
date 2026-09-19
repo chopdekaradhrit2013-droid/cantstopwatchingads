@@ -17,18 +17,19 @@ export default function ProfilePage() {
       </div>
     );
   }
+  const account = user;
   function toggleInterest(c: Category) {
-    const next = user.interests.includes(c) ? user.interests.filter((x) => x !== c) : [...user.interests, c];
+    const next = account.interests.includes(c) ? account.interests.filter((x) => x !== c) : [...account.interests, c];
     updateInterests(next);
   }
   return (
     <div className="space-y-10">
       <section className="flex flex-col gap-4 rounded-3xl border border-neutral-200 bg-white p-6 sm:flex-row sm:items-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={user.avatar} alt="" className="h-16 w-16 rounded-full bg-neutral-200" />
+        <img src={account.avatar} alt="" className="h-16 w-16 rounded-full bg-neutral-200" />
         <div className="flex-1">
-          <h1 className="text-2xl font-semibold">{user.name}</h1>
-          <p className="text-sm text-neutral-500">{user.email}</p>
+          <h1 className="text-2xl font-semibold">{account.name}</h1>
+          <p className="text-sm text-neutral-500">{account.email}</p>
         </div>
         <button type="button" onClick={logout} className="rounded-full border border-neutral-200 px-4 py-2 text-sm">Log out</button>
       </section>
@@ -36,7 +37,7 @@ export default function ProfilePage() {
         <h2 className="text-xl font-semibold">Interests</h2>
         <div className="mt-3 flex flex-wrap gap-2">
           {CATEGORIES.filter((c) => c !== "Other").map((c) => (
-            <button key={c} type="button" onClick={() => toggleInterest(c)} className={`rounded-full px-3 py-1.5 text-xs ${user.interests.includes(c) ? "bg-neutral-900 text-white" : "border border-neutral-200 bg-white"}`}>{c}</button>
+            <button key={c} type="button" onClick={() => toggleInterest(c)} className={`rounded-full px-3 py-1.5 text-xs ${account.interests.includes(c) ? "bg-neutral-900 text-white" : "border border-neutral-200 bg-white"}`}>{c}</button>
           ))}
         </div>
       </section>
