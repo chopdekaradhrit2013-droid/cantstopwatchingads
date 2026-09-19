@@ -1,17 +1,16 @@
 "use client";
 import dynamic from "next/dynamic";
+import { useLive } from "@/lib/live";
 
-const FluidGlass = dynamic(() => import("./FluidGlass"), { ssr: false });
+const AdFluidGlass = dynamic(() => import("./AdFluidGlass"), { ssr: false });
 
 export function FluidGlassSection() {
-  return (
-    <div className="relative left-1/2 h-[70vh] w-screen -translate-x-1/2 overflow-hidden bg-[#120F17]">
-      <FluidGlass
-        mode="lens"
-        backgroundColor="#120F17"
-        textColor="#ffffff"
-        lensProps={{ scale: 0.25, ior: 1.15, thickness: 5, chromaticAberration: 0.1, anisotropy: 0.01 }}
-      />
-    </div>
-  );
+  const { ads, loaded } = useLive();
+  if (!loaded) return null;
+  const items = ads
+    .filter((a) => a.media && (a.media.startsWith("http") || a.media.startsWith("data:image")))
+    .slice(0, 5)
+    .map((a) => ({ id: a.id, image: a.media, title: a.title, href: `/ads/${a.id}` }));
+  if (!items.length) return null;
+  return <AdFluidGlass items={items} />;
 }
