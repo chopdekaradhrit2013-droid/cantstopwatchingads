@@ -6,6 +6,7 @@ import { formatCount, formatDate } from "@/lib/data";
 import { useLive } from "@/lib/live";
 import { useStore } from "@/lib/store";
 import { AdGrid } from "@/components/AdCard";
+import { useAuthGate } from "@/components/AuthGate";
 
 const REASONS = [
   "This brand is impersonating another business",
@@ -26,6 +27,7 @@ export default function AdPage() {
   const { ads, brands, loaded } = useLive();
   const ad = ads.find((a) => a.id === id);
   const { isLiked, isSaved, isFollowed, toggleLike, toggleSave, toggleFollow } = useStore();
+  const guard = useAuthGate();
   const [reason, setReason] = useState(REASONS[0]);
   const [reported, setReported] = useState(false);
   if (!loaded) return <p>Loading…</p>;
@@ -40,6 +42,7 @@ export default function AdPage() {
     else { await navigator.clipboard.writeText(url); alert("Link copied."); }
   }
   function report() {
+    if (!guard("report this ad")) return;
     const key = "cswa-reports";
     const prev = JSON.parse(localStorage.getItem(key) || "[]");
     prev.unshift({ id: `104${prev.length + 2}`, reason, advertisement: ad.title, adId: ad.id, status: "under_review" });
@@ -58,11 +61,11 @@ export default function AdPage() {
           <p className="mt-4 max-w-2xl text-neutral-600">{ad.description}</p>
           <p className="mt-3 text-xs text-neutral-400">{formatCount(ad.likes)} likes · {formatCount(ad.views)} views</p>
           <div className="mt-6 flex flex-wrap gap-2">
-            <button type="button" onClick={() => toggleLike(ad.id)} className={`rounded-full px-4 py-2 text-sm ${isLiked(ad.id) ? "bg-neutral-900 text-white" : "border border-neutral-200"}`}>{isLiked(ad.id) ? "Liked" : "Like"}</button>
-            <button type="button" onClick={() => toggleSave(ad.id)} className={`rounded-full px-4 py-2 text-sm ${isSaved(ad.id) ? "bg-neutral-900 text-white" : "border border-neutral-200"}`}>{isSaved(ad.id) ? "Saved" : "Save"}</button>
+            <button type="button" onClick={() => guard("like this ad") && toggleLike(ad.id)} className={`rounded-full px-4 py-2 text-sm ${isLiked(ad.id) ? "bg-neutral-900 text-white" : "border border-neutral-200"}`}>{isLiked(ad.id) ? "Liked" : "Like"}</button>
+            <button type="button" onClick={() => guard("save this ad") && toggleSave(ad.id)} className={`rounded-full px-4 py-2 text-sm ${isSaved(ad.id) ? "bg-neutral-900 text-white" : "border border-neutral-200"}`}>{isSaved(ad.id) ? "Saved" : "Save"}</button>
             <button type="button" onClick={share} className="rounded-full border border-neutral-200 px-4 py-2 text-sm">Share</button>
             {brand && (
-              <button type="button" onClick={() => toggleFollow(brand.id)} className={`rounded-full px-4 py-2 text-sm ${isFollowed(brand.id) ? "border border-neutral-200" : "bg-neutral-900 text-white"}`}>{isFollowed(brand.id) ? "Following" : "Follow brand"}</button>
+              <button type="button" onClick={() => guard("follow this brand") && toggleFollow(brand.id)} className={`rounded-full px-4 py-2 text-sm ${isFollowed(brand.id) ? "border border-neutral-200" : "bg-neutral-900 text-white"}`}>{isFollowed(brand.id) ? "Following" : "Follow brand"}</button>
             )}
             {visit && (
               <a href={visit} target="_blank" rel="noreferrer" className="rounded-full bg-neutral-900 px-4 py-2 text-sm text-white">{ad.cta || "Visit"}</a>
@@ -70,7 +73,6 @@ export default function AdPage() {
           </div>
           <div className="mt-8 rounded-2xl border border-neutral-200 p-4">
             <p className="text-sm font-medium">Report Advertisement</p>
-            <p className="mt-1 text-xs text-neutral-500">Demo report — stored locally until admin review is connected.</p>
             {reported ? <p className="mt-3 text-sm">Report submitted. Status: Under Review.</p> : (
               <>
                 <select value={reason} onChange={(e) => setReason(e.target.value)} className="mt-3 w-full rounded-xl border px-3 py-2 text-sm">
