@@ -1,0 +1,63 @@
+export type Category =
+  | "Fashion"
+  | "Sports"
+  | "Food"
+  | "Technology"
+  | "Beauty"
+  | "Gaming"
+  | "Automotive"
+  | "Travel"
+  | "Entertainment"
+  | "Other";
+
+export const CATEGORIES: Category[] = [
+  "Fashion",
+  "Sports",
+  "Food",
+  "Technology",
+  "Beauty",
+  "Gaming",
+  "Automotive",
+  "Travel",
+  "Entertainment",
+  "Other",
+];
+
+export type Brand = {
+  id: string;
+  name: string;
+  slug: string;
+  logo: string;
+  description: string;
+  website: string;
+  followers: number;
+};
+
+export type Advertisement = {
+  id: string;
+  brandId: string;
+  title: string;
+  description: string;
+  category: Category;
+  thumbnail: string;
+  media: string;
+  likes: number;
+  views: number;
+  createdAt: string;
+};
+
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  interests: Category[];
+};
+
+export type NotificationItem = {
+  id: string;
+  brandId: string;
+  message: string;
+  createdAt: string;
+  read: boolean;
+};
