@@ -25,7 +25,7 @@ export default function HomePage() {
   const recommended = ads.filter((a) => (user?.interests?.length ? user.interests.includes(a.category) : true)).slice(0, 6).map((a) => a.id);
   return (
     <div className="space-y-12">
-      <div className="-mx-4 -mt-8 sm:-mx-4">
+      <div className="relative left-1/2 w-screen -translate-x-1/2 -mt-28">
         <ScrollExpand
           useWindowScroll
           title="Ever experienced TIME SQUARE on your screen?"
