@@ -6,6 +6,7 @@ import { AdGrid } from "@/components/AdCard";
 import { BrandCard } from "@/components/BrandCard";
 import { BrandDriftWall } from "@/components/BrandDriftWall";
 import ScrollExpand from "@/components/ScrollExpand";
+import { FluidGlassSection } from "@/components/FluidGlassSection";
 
 function Empty() {
   return (
@@ -40,6 +41,7 @@ export default function HomePage() {
           <p>Watch the world advertise</p>
         </ScrollExpand>
       </div>
+      <FluidGlassSection />
       {!loaded ? <p className="text-sm text-neutral-500">Loading…</p> : ads.length === 0 ? <Empty /> : (
         <>
           <section>
