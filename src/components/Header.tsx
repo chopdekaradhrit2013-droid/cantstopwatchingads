@@ -3,21 +3,23 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
-const links = [
-  { href: "/", label: "Home" },
-  { href: "/explore", label: "Explore" },
-  { href: "/brands", label: "Brands" },
-  { href: "/saved", label: "Saved" },
-  { href: "/notifications", label: "Notifications" },
-  { href: "/profile", label: "Profile" },
-];
+
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, notifications } = useStore();
+  const { user, isAdmin, notifications } = useStore();
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
   const unread = notifications.filter((n) => !n.read).length;
+  const links = [
+    { href: "/", label: "Home" },
+    { href: "/explore", label: "Explore" },
+    { href: "/brands", label: "Brands" },
+    { href: "/saved", label: "Saved" },
+    { href: "/notifications", label: "Notifications" },
+    { href: "/profile", label: "Profile" },
+    { href: "/admin", label: "Admin" },
+  ];
   function onSearch(e: React.FormEvent) {
     e.preventDefault();
     router.push(q.trim() ? `/explore?q=${encodeURIComponent(q.trim())}` : "/explore");
@@ -39,7 +41,7 @@ export function Header() {
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-2">
-          {user ? <Link href="/profile" className="hidden text-sm sm:block">{user.name}</Link> : <Link href="/login" className="rounded-full bg-neutral-900 px-3 py-1.5 text-sm text-white">Log in</Link>}
+          {user ? <Link href={isAdmin ? "/admin" : "/profile"} className="hidden text-sm sm:block">{isAdmin ? "Admin" : user.name}</Link> : <Link href="/login" className="rounded-full bg-neutral-900 px-3 py-1.5 text-sm text-white">Log in</Link>}
           <button type="button" className="rounded-full border px-3 py-1.5 text-sm lg:hidden" onClick={() => setOpen((v) => !v)}>Menu</button>
         </div>
       </div>
