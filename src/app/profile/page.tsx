@@ -1,11 +1,13 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { CATEGORIES, type Category } from "@/lib/types";
 import { useStore } from "@/lib/store";
 import { AdGrid } from "@/components/AdCard";
 import { BrandCard } from "@/components/BrandCard";
 export default function ProfilePage() {
   const { user, followed, saved, logout, updateInterests } = useStore();
+  const router = useRouter();
   if (!user) {
     return (
       <div className="rounded-3xl border border-dashed border-neutral-300 bg-white p-10 text-center">
@@ -31,7 +33,7 @@ export default function ProfilePage() {
           <h1 className="text-2xl font-semibold">{account.name}</h1>
           <p className="text-sm text-neutral-500">{account.email}</p>
         </div>
-        <button type="button" onClick={logout} className="rounded-full border border-neutral-200 px-4 py-2 text-sm">Log out</button>
+        <button type="button" onClick={() => { logout(); router.push("/login"); }} className="rounded-full border border-neutral-200 px-4 py-2 text-sm">Log out</button>
       </section>
       <section>
         <h2 className="text-xl font-semibold">Interests</h2>

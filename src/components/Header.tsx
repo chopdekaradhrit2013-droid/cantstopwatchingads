@@ -12,6 +12,7 @@ export function Header() {
     { label: "Alerts", href: "/notifications", rotation: -8, hoverStyles: { bgColor: "#111", textColor: "#fff" } },
     { label: user ? "Profile" : "Log in", href: user ? "/profile" : "/login", rotation: 8, hoverStyles: { bgColor: "#111", textColor: "#fff" } },
   ];
+  if (user) items.push({ label: "Log out", href: "/logout", rotation: 8, hoverStyles: { bgColor: "#111", textColor: "#fff" } });
   if (isAdmin) items.push({ label: "Admin", href: "/admin", rotation: -8, hoverStyles: { bgColor: "#111", textColor: "#fff" } });
   return (
     <>
