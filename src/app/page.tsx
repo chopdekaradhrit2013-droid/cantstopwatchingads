@@ -5,6 +5,8 @@ import { useStore } from "@/lib/store";
 import { AdGrid } from "@/components/AdCard";
 import { BrandCard } from "@/components/BrandCard";
 import { BrandDriftWall } from "@/components/BrandDriftWall";
+import ScrollExpand from "@/components/ScrollExpand";
+
 function Empty() {
   return (
     <div className="rounded-3xl border border-dashed border-neutral-300 bg-white px-6 py-16 text-center">
@@ -13,25 +15,31 @@ function Empty() {
     </div>
   );
 }
+
 export default function HomePage() {
   const { user } = useStore();
   const { ads, brands, loaded } = useLive();
   const trending = [...ads].sort((a, b) => b.views - a.views).slice(0, 6).map((a) => a.id);
   const latest = [...ads].sort((a, b) => +new Date(b.createdAt) - +new Date(a.createdAt)).slice(0, 6).map((a) => a.id);
   const popularBrands = [...brands].sort((a, b) => b.followers - a.followers).slice(0, 4);
-  const recommended = ads.filter((a) => user?.interests?.length ? user.interests.includes(a.category) : true).slice(0, 6).map((a) => a.id);
+  const recommended = ads.filter((a) => (user?.interests?.length ? user.interests.includes(a.category) : true)).slice(0, 6).map((a) => a.id);
   return (
     <div className="space-y-12">
-      <BrandDriftWall />
-      <section className="rounded-3xl border border-neutral-200 bg-white px-6 py-12 text-center sm:px-12">
-        <p className="text-xs uppercase tracking-[0.2em] text-neutral-500">Viewer</p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-5xl">CAN’T STOP WATCHING ADS</h1>
-        <p className="mx-auto mt-4 max-w-xl text-neutral-600">Discover the ads you actually want to watch.</p>
-        <div className="mt-6 flex justify-center gap-3">
-          <Link href="/explore" className="rounded-full bg-neutral-900 px-5 py-2 text-sm text-white">Explore ads</Link>
-          {!user && <Link href="/signup" className="rounded-full border border-neutral-300 px-5 py-2 text-sm">Create account</Link>}
-        </div>
-      </section>
+      <div className="-mx-4 -mt-8 sm:-mx-4">
+        <ScrollExpand
+          useWindowScroll
+          title="Ever experienced TIME SQUARE on your screen?"
+          scrollHint="Scroll"
+          startWidth={42}
+          startHeight={58}
+          mediaZoom={1.2}
+          overlayScrim={0.55}
+          media={<BrandDriftWall fill />}
+        >
+          <h2>Presenting you<br />CantStopWatchingAds</h2>
+          <p>Watch the world advertise</p>
+        </ScrollExpand>
+      </div>
       {!loaded ? <p className="text-sm text-neutral-500">Loading…</p> : ads.length === 0 ? <Empty /> : (
         <>
           <section>
