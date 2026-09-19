@@ -1,17 +1,8 @@
 "use client";
-
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { Category, NotificationItem, User } from "./types";
-import { seedNotifications } from "./data";
 
-const KEY = "cswa-store-v1";
+const KEY = "cswa-store-v3";
 
 type StoreState = {
   user: User | null;
@@ -26,7 +17,7 @@ const defaultState: StoreState = {
   liked: [],
   saved: [],
   followed: [],
-  notifications: seedNotifications,
+  notifications: [],
 };
 
 type Store = StoreState & {
@@ -52,19 +43,8 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as StoreState;
-        setState({
-          ...defaultState,
-          ...parsed,
-          notifications: parsed.notifications?.length
-            ? parsed.notifications
-            : seedNotifications,
-        });
-      }
-    } catch {
-      /* ignore */
-    }
+      if (raw) setState({ ...defaultState, ...JSON.parse(raw), notifications: [] });
+    } catch {}
     setReady(true);
   }, []);
 
@@ -73,19 +53,16 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(KEY, JSON.stringify(state));
   }, [state, ready]);
 
-  const signup = useCallback(
-    (name: string, email: string, _password: string, interests: Category[]) => {
-      const user: User = {
-        id: crypto.randomUUID(),
-        name,
-        email,
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=111111&color=fff`,
-        interests,
-      };
-      setState((s) => ({ ...s, user }));
-    },
-    []
-  );
+  const signup = useCallback((name: string, email: string, _password: string, interests: Category[]) => {
+    const user: User = {
+      id: crypto.randomUUID(),
+      name,
+      email,
+      avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=111111&color=fff`,
+      interests,
+    };
+    setState((s) => ({ ...s, user }));
+  }, []);
 
   const login = useCallback((email: string, _password: string) => {
     let ok = false;
@@ -112,54 +89,37 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return ok;
   }, []);
 
-  const logout = useCallback(() => {
-    setState((s) => ({ ...s, user: null }));
-  }, []);
-
+  const logout = useCallback(() => setState((s) => ({ ...s, user: null })), []);
   const updateInterests = useCallback((interests: Category[]) => {
     setState((s) => (s.user ? { ...s, user: { ...s.user, interests } } : s));
   }, []);
-
   const toggleLike = useCallback((adId: string) => {
-    setState((s) => ({
-      ...s,
-      liked: s.liked.includes(adId) ? s.liked.filter((id) => id !== adId) : [...s.liked, adId],
-    }));
+    setState((s) => ({ ...s, liked: s.liked.includes(adId) ? s.liked.filter((id) => id !== adId) : [...s.liked, adId] }));
   }, []);
-
   const toggleSave = useCallback((adId: string) => {
-    setState((s) => ({
-      ...s,
-      saved: s.saved.includes(adId) ? s.saved.filter((id) => id !== adId) : [...s.saved, adId],
-    }));
+    setState((s) => ({ ...s, saved: s.saved.includes(adId) ? s.saved.filter((id) => id !== adId) : [...s.saved, adId] }));
   }, []);
-
   const toggleFollow = useCallback((brandId: string) => {
     setState((s) => ({
       ...s,
-      followed: s.followed.includes(brandId)
-        ? s.followed.filter((id) => id !== brandId)
-        : [...s.followed, brandId],
+      followed: s.followed.includes(brandId) ? s.followed.filter((id) => id !== brandId) : [...s.followed, brandId],
     }));
   }, []);
 
-  const value = useMemo<Store>(
-    () => ({
-      ...state,
-      ready,
-      signup,
-      login,
-      logout,
-      updateInterests,
-      toggleLike,
-      toggleSave,
-      toggleFollow,
-      isLiked: (id) => state.liked.includes(id),
-      isSaved: (id) => state.saved.includes(id),
-      isFollowed: (id) => state.followed.includes(id),
-    }),
-    [state, ready, signup, login, logout, updateInterests, toggleLike, toggleSave, toggleFollow]
-  );
+  const value = useMemo<Store>(() => ({
+    ...state,
+    ready,
+    signup,
+    login,
+    logout,
+    updateInterests,
+    toggleLike,
+    toggleSave,
+    toggleFollow,
+    isLiked: (id) => state.liked.includes(id),
+    isSaved: (id) => state.saved.includes(id),
+    isFollowed: (id) => state.followed.includes(id),
+  }), [state, ready, signup, login, logout, updateInterests, toggleLike, toggleSave, toggleFollow]);
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
