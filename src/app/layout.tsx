@@ -4,6 +4,7 @@ import "./globals.css";
 import { Header } from "@/components/Header";
 import { StoreProvider } from "@/lib/store";
 import { LiveProvider } from "@/lib/live";
+import GradualBlur from "@/components/GradualBlur";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 
@@ -18,8 +19,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={`${geistSans.variable} font-sans antialiased`}>
         <StoreProvider>
           <LiveProvider>
-            <Header />
-            <main className="mx-auto min-h-[calc(100vh-64px)] max-w-6xl px-4 py-8">{children}</main>
+            <div style={{ position: "relative", minHeight: "100vh" }}>
+              <Header />
+              <main className="mx-auto min-h-[calc(100vh-64px)] max-w-6xl px-4 py-8 pb-28">{children}</main>
+              <GradualBlur
+                target="page"
+                position="bottom"
+                height="6rem"
+                strength={2}
+                divCount={5}
+                curve="bezier"
+                exponential
+                opacity={1}
+              />
+            </div>
           </LiveProvider>
         </StoreProvider>
       </body>
