@@ -1,28 +1,49 @@
 "use client";
-import BubbleMenu from "./BubbleMenu";
+import CardNav from "./CardNav";
 import { useStore } from "@/lib/store";
 
 export function SiteNav() {
   const { user } = useStore();
   const items = [
-    { label: "home", href: "/", ariaLabel: "Home", rotation: -8, hoverStyles: { bgColor: "#111111", textColor: "#ffffff" } },
-    { label: "explore", href: "/explore", ariaLabel: "Explore", rotation: 8, hoverStyles: { bgColor: "#3b82f6", textColor: "#ffffff" } },
-    { label: "brands", href: "/brands", ariaLabel: "Brands", rotation: 8, hoverStyles: { bgColor: "#10b981", textColor: "#ffffff" } },
-    { label: "saved", href: "/saved", ariaLabel: "Saved", rotation: -8, hoverStyles: { bgColor: "#f59e0b", textColor: "#ffffff" } },
-    { label: "alerts", href: "/notifications", ariaLabel: "Notifications", rotation: 8, hoverStyles: { bgColor: "#ef4444", textColor: "#ffffff" } },
-    { label: user ? "profile" : "log in", href: user ? "/profile" : "/login", ariaLabel: user ? "Profile" : "Log in", rotation: -8, hoverStyles: { bgColor: "#8b5cf6", textColor: "#ffffff" } },
+    {
+      label: "Watch",
+      bgColor: "#16131c",
+      textColor: "#fff",
+      links: [
+        { label: "Home", href: "/", ariaLabel: "Home" },
+        { label: "Explore", href: "/explore", ariaLabel: "Explore ads" },
+        { label: "Saved", href: "/saved", ariaLabel: "Saved ads" },
+      ],
+    },
+    {
+      label: "Brands",
+      bgColor: "#211c28",
+      textColor: "#fff",
+      links: [
+        { label: "All brands", href: "/brands", ariaLabel: "Brands" },
+        { label: "Alerts", href: "/notifications", ariaLabel: "Notifications" },
+      ],
+    },
+    {
+      label: "You",
+      bgColor: "#2a2230",
+      textColor: "#fff",
+      links: [
+        { label: user ? "Profile" : "Log in", href: user ? "/profile" : "/login", ariaLabel: "Account" },
+        { label: "Sign up", href: "/signup", ariaLabel: "Sign up" },
+      ],
+    },
   ];
   return (
-    <BubbleMenu
-      logo={<span>CAN’T STOP WATCHING ADS</span>}
+    <CardNav
+      logoText="CSWA"
       items={items}
-      menuAriaLabel="Toggle navigation"
-      menuBg="#ffffff"
-      menuContentColor="#111111"
-      useFixedPosition
-      animationEase="back.out(1.5)"
-      animationDuration={0.5}
-      staggerDelay={0.12}
+      baseColor="#f6f3ec"
+      menuColor="#111"
+      buttonBgColor="#111"
+      buttonTextColor="#fff"
+      ctaHref={user ? "/profile" : "/signup"}
+      ctaLabel={user ? "Studio" : "Get in"}
     />
   );
 }

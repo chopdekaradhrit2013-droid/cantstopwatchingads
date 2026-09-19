@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f6f5f2;
-  --foreground: #171717;
+  --background: #0b0b10;
+  --foreground: #f4f1ea;
 }
 
 @theme inline {
@@ -12,10 +12,9 @@
 }
 
 body {
-  background: var(--background);
+  background: radial-gradient(1200px 700px at 10% -10%, #1a1624 0%, #0b0b10 45%);
   color: var(--foreground);
 }
 
-button {
-  cursor: pointer;
-}
+button { cursor: pointer; }
+a { color: inherit; }
