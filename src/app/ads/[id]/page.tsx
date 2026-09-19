@@ -1,16 +1,18 @@
 "use client";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { adsByBrand, brands, formatCount, formatDate, getAd } from "@/lib/data";
+import { formatCount, formatDate } from "@/lib/data";
+import { useLive } from "@/lib/live";
 import { useStore } from "@/lib/store";
 import { AdGrid } from "@/components/AdCard";
 export default function AdPage() {
   const { id } = useParams<{ id: string }>();
-  const ad = getAd(id);
+  const { ads, brands } = useLive();
+  const ad = ads.find((a) => a.id === id);
   const { isLiked, isSaved, isFollowed, toggleLike, toggleSave, toggleFollow } = useStore();
   if (!ad) return <p>Advertisement not found.</p>;
   const brand = brands.find((b) => b.id === ad.brandId);
-  const more = adsByBrand(ad.brandId).filter((a) => a.id !== ad.id).map((a) => a.id);
+  const more = ads.filter((a) => a.brandId === ad.brandId && a.id !== ad.id).map((a) => a.id);
   async function share() {
     const url = window.location.href;
     if (navigator.share) await navigator.share({ title: ad.title, url });
